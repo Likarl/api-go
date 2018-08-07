@@ -2,6 +2,7 @@ package main
 
 import (
 	"api-go/config"
+	"api-go/model"
 	"api-go/router"
 	"errors"
 	"net/http"
@@ -24,6 +25,10 @@ func main() {
 	if err := config.Init(*cfg); err != nil {
 		log.Fatal("Fatal init config", err)
 	}
+
+	// init db
+	model.DB.Init()
+	defer model.DB.Close()
 
 	// running mode
 	gin.SetMode(viper.GetString("runmode"))
@@ -51,7 +56,7 @@ func main() {
 
 // pingServer pings the http server to make sure the router is working.
 func pingServer() error {
-	for i := 0; i < 2; i++ {
+	for i := 0; i < viper.GetInt("max_ping_count"); i++ {
 		// Ping the server by sending a GET request to `/health`.
 		resp, err := http.Get(viper.GetString("url") + "/sd/health")
 		if err == nil && resp.StatusCode == 200 {
