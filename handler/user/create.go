@@ -2,12 +2,10 @@ package user
 
 import (
 	"api-go/handler"
-	"fmt"
-
+	"api-go/model"
 	"api-go/pkg/errno"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lexkong/log"
 )
 
 // Create creates a new user account.
@@ -18,23 +16,25 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	admin2 := c.Param("username")
-	log.Infof("URL username: %s", admin2)
+	u := model.UserModel{
+		Username: r.Username,
+		Password: r.Password,
+	}
 
-	desc := c.Query("desc")
-	log.Infof("URL key param desc: %s", desc)
-
-	contentType := c.GetHeader("Content-Type")
-	log.Infof("Header Content-Type: %s", contentType)
-
-	log.Debugf("username is: [%s], password is [%s]", r.Username, r.Password)
-	if r.Username == "" {
-		handler.SendResponse(c, errno.New(errno.ErrUserNotFound, fmt.Errorf("username can not found in db: xx.xx.xx.xx")), nil)
+	// Validate the data.
+	if err := u.Validate(); err != nil {
+		handler.SendResponse(c, errno.ErrValidation, nil)
 		return
 	}
 
-	if r.Password == "" {
-		handler.SendResponse(c, fmt.Errorf("password is empty"), nil)
+	// Encrypt the user password.
+	if err := u.Encrypt(); err != nil {
+		handler.SendResponse(c, errno.ErrEncrypt, nil)
+		return
+	}
+	// Insert the user to the database.
+	if err := u.Create(); err != nil {
+		handler.SendResponse(c, errno.ErrDatabase, nil)
 		return
 	}
 

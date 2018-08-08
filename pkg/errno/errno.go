@@ -9,6 +9,7 @@ type Errno struct {
 	Message string
 }
 
+//implement error interface
 func (err Errno) Error() string {
 	return err.Message
 }
