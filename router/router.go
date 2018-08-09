@@ -23,8 +23,12 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		c.String(http.StatusNotFound, "The wrong API route")
 	})
 
+	// api for authentication functionalities
+	g.POST("/login", user.Login)
+
 	//user
 	u := g.Group("/v1/user")
+	u.Use(middleware.AuthMiddleware())
 	{
 		u.POST("", user.Create)
 		u.DELETE("/:id", user.Delete)
