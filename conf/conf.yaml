@@ -23,3 +23,7 @@ docker_db:
   addr: 127.0.0.1:3306
   username: root
   password: root
+tls:
+  addr: :8081
+  cert: conf/server.crt
+  key: conf/server.key

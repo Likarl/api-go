@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// List list the users in the database.
 func List(c *gin.Context) {
 	var r ListRequest
 	if err := c.Bind(&r); err != nil {
